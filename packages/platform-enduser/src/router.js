@@ -13,14 +13,6 @@ import store from '@/store';
 
 Vue.use(Router);
 
-const checkIfGovernanceV2RouteCanBeAccessed = (to, from, next) => {
-  if (store.state.SharedStore.governanceEnabledV2 === true) {
-    next();
-  } else {
-    next({ name: 'NotFound' });
-  }
-};
-
 /**
  * Available toolbar configuration
  * hideSideMenu - Will hide main toolbar when route accessed
@@ -75,6 +67,12 @@ const router = new Router({
       meta: { authenticate: true },
     },
     {
+      path: '/request-reviews',
+      name: 'RequestReviews',
+      component: () => import('@/views/RequestReviews'),
+      meta: { authenticate: true },
+    },
+    {
       path: '/certification/certification-task/:campaignId',
       name: 'CertificationTask',
       component: () => import('@forgerock/platform-shared/src/views/Governance/CertificationTask'),
@@ -104,14 +102,13 @@ const router = new Router({
       name: 'DirectReports',
       component: () => import('@/views/Directory/DirectReports'),
       meta: { authenticate: true },
-      beforeEnter: (to, from, next) => checkIfGovernanceV2RouteCanBeAccessed(to, from, next),
-    },
-    {
-      path: '/my-reports/:userId/:grantType',
-      name: 'DirectReportDetail',
-      component: () => import('@/views/Directory/DirectReportDetail'),
-      meta: { authenticate: true },
-      beforeEnter: (to, from, next) => checkIfGovernanceV2RouteCanBeAccessed(to, from, next),
+      beforeEnter: (to, from, next) => {
+        if (store.state.SharedStore.governanceEnabledV2 === true) {
+          next();
+        } else {
+          next({ name: 'NotFound' });
+        }
+      },
     },
     {
       path: '/list/:resourceType/:resourceName',
@@ -139,27 +136,6 @@ const router = new Router({
           next();
         }
       },
-    },
-    {
-      path: '/my-accounts',
-      name: 'Accounts',
-      component: () => import('@/views/MyAccessReview/Accounts'),
-      meta: { authenticate: true },
-      beforeEnter: (to, from, next) => checkIfGovernanceV2RouteCanBeAccessed(to, from, next),
-    },
-    {
-      path: '/my-entitlements',
-      name: 'Entitlements',
-      component: () => import('@/views/MyAccessReview/Entitlements'),
-      meta: { authenticate: true },
-      beforeEnter: (to, from, next) => checkIfGovernanceV2RouteCanBeAccessed(to, from, next),
-    },
-    {
-      path: '/my-roles',
-      name: 'Roles',
-      component: () => import('@/views/MyAccessReview/Roles'),
-      meta: { authenticate: true },
-      beforeEnter: (to, from, next) => checkIfGovernanceV2RouteCanBeAccessed(to, from, next),
     },
     {
       path: '/sharing',
@@ -199,13 +175,8 @@ router.beforeEach((to, from, next) => {
   if (store.state.hostedPages === false && to.name !== 'Forbidden') {
     next({ name: 'Forbidden' });
   } else if (realm !== store.state.realm) {
-    // If there is no realm defined here it means the realm is root and no realm url
-    // param is defined or a custom domain is being used. In both cases we do not need
-    // (or want in the case of custom domain) to add the realm parameter.
-    if (realm) {
-      url.searchParams.set('realm', store.state.realm);
-      window.location = encodeURI(url);
-    }
+    url.searchParams.set('realm', store.state.realm);
+    window.location = encodeURI(url);
     next();
   } else {
     next();

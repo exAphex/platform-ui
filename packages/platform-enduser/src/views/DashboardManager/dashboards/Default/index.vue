@@ -5,29 +5,17 @@ of the MIT license. See the LICENSE file for details. -->
 <template>
   <div>
     <BContainer fluid="true">
-      <BRow
-        v-if="widgets.length"
-        class="mx-4">
-        <div
-          v-for="(widget, index) in widgets"
-          :class="{'col-sm-4': widget.size === 'small', 'col-sm-6': widget.size === 'medium', 'col-sm-12': widget.size === 'large', 'mt-4': true}"
+      <BRow v-if="widgets.length" class="mx-4">
+        <div v-for="(widget, index) in widgets"
+          :class="{ 'col-sm-4': widget.size === 'small', 'col-sm-6': widget.size === 'medium', 'col-sm-12': widget.size === 'large', 'mt-4': true }"
           :key="widget.type + index">
-          <Component
-            :is="widget.type"
-            :user-details="userDetails"
-            :details="widget.details"
-            :display-compact-header="myApplications.length > 0"
-          />
+          <Component :is="widget.type" :user-details="userDetails" :details="widget.details"
+            :display-compact-header="myApplications.length > 0" />
         </div>
       </BRow>
-      <BJumbotron
-        v-else
-        class="mt-4 text-center">
+      <BJumbotron v-else class="mt-4 text-center">
         <div class="d-flex justify-content-center mt-3">
-          <FrIcon
-            class="mr-4 md-64"
-            name="donut_large"
-          />
+          <FrIcon class="mr-4 md-64" name="donut_large" />
           <div class="flex-fow-1">
             <h1 class="h2">
               {{ $t('pages.dashboard.noWidget') }}
@@ -37,20 +25,12 @@ of the MIT license. See the LICENSE file for details. -->
         </div>
       </BJumbotron>
     </BContainer>
-    <BContainer
-      v-if="myApplications.length">
+    <BContainer v-if="myApplications.length">
       <BCol>
-        <section
-          data-test-id="my-applications"
-          class="my-applications-wrapper">
-          <ListGroup
-            :title="$t('pages.dashboard.applications.heading')">
-            <ul
-              class="list-unstyled ml-4 mr-4 mb-4 my-applications-tiles"
-              data-test-id="my-applications-list">
-              <FrConsumerApplications
-                v-for="application in myApplications"
-                :key="application.dashboardDisplayName[0]"
+        <section data-test-id="my-applications" class="my-applications-wrapper">
+          <ListGroup :title="$t('pages.dashboard.applications.heading')">
+            <ul class="list-unstyled ml-4 mr-4 mb-4 my-applications-tiles" data-test-id="my-applications-list">
+              <FrConsumerApplications v-for="application in myApplications" :key="application.dashboardDisplayName[0]"
                 :application-details="application" />
             </ul>
           </ListGroup>
@@ -128,6 +108,12 @@ export default {
         .catch((error) => {
           this.displayNotification('error', error.response.data.message);
         });
+
+      this.getRequestService().get(`endpoint/GetJoinerApprovals`).then(({ data }) => {
+        this.$store.commit('setRequestCount', data.results.length);
+      }).catch((error) => {
+        this.showErrorMessage(error, this.$t('pages.profile.failedGettingProfile'));
+      });
     },
     /**
      * @description Loads a list of permitted applications
@@ -153,26 +139,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .my-applications {
-    &-wrapper {
-      background-color: $white;
-      border-radius: $border-radius;
-      box-shadow: $box-shadow;
+.my-applications {
+  &-wrapper {
+    background-color: $white;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+  }
+
+  &-tiles {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 1.5rem $grid-gutter-width;
+    grid-auto-flow: row dense;
+
+    @include media-breakpoint-up('md') {
+      grid-template-columns: repeat(2, 1fr);
     }
 
-    &-tiles {
-      display: grid;
-      grid-template-columns: 1fr;
-      grid-gap: 1.5rem  $grid-gutter-width;
-      grid-auto-flow: row dense;
-
-      @include media-breakpoint-up('md') {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      @include media-breakpoint-up('lg') {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
+    @include media-breakpoint-up('lg') {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
+}
 </style>

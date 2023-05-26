@@ -4,22 +4,11 @@ This software may be modified and distributed under the terms
 of the MIT license. See the LICENSE file for details. -->
 <template>
   <div>
-    <FrLayout
-      :footer="accountFooter"
-      :is-enduser="true"
-      :is-fraas="$store.state.isFraas"
-      :menu-items="menuItems"
-      :user-details="userDetails"
-      :version="version"
-      :class="{invisible: theme === null}">
-      <RouterView
-        :key="$route.fullPath"
-        :theme="theme" />
+    <FrLayout :footer="accountFooter" :is-enduser="true" :is-fraas="$store.state.isFraas" :menu-items="menuItems"
+      :user-details="userDetails" :version="version" :class="{ invisible: theme === null }">
+      <RouterView :key="$route.fullPath" :theme="theme" />
     </FrLayout>
-    <ThemeInjector
-      :theme="theme"
-      :is-enduser="true"
-      v-if="theme !== null" />
+    <ThemeInjector :theme="theme" :is-enduser="true" v-if="theme !== null" />
   </div>
 </template>
 
@@ -79,6 +68,14 @@ export default {
           displayName: 'sideMenu.dashboard',
           icon: 'dashboard',
         },
+        {
+          showBadgeWithContentFromStore: 'requestCount',
+          displayName: 'Requests',
+          icon: 'inbox',
+          routeTo: {
+            name: 'RequestReviews',
+          }
+        },
         (this.$store.state.SharedStore.governanceEnabled === true
           ? {
             menuGroup: true,
@@ -105,26 +102,6 @@ export default {
             routeTo: { name: 'Applications' },
             displayName: 'sideMenu.applications',
             icon: 'apps',
-          }
-          : {}),
-        (this.$store.state.SharedStore.governanceEnabledV2 === true
-          ? {
-            displayName: 'sideMenu.myAccess',
-            icon: 'badge',
-            subItems: [
-              {
-                displayName: 'sideMenu.accounts',
-                routeTo: { name: 'Accounts' },
-              },
-              {
-                displayName: 'sideMenu.roles',
-                routeTo: { name: 'Roles' },
-              },
-              {
-                displayName: 'sideMenu.entitlements',
-                routeTo: { name: 'Entitlements' },
-              },
-            ],
           }
           : {}),
         (this.$store.state.SharedStore.governanceEnabled === true
@@ -230,11 +207,11 @@ export default {
       // Risk Dashboard / Fraud Analyst
       getConfig().then(() => {
         this.showRiskDashboad();
-      }).catch(() => {});
+      }).catch(() => { });
       // Risk Administration / Data Analyst
       getDefaultProcess().then(() => {
         this.showRiskAdministration();
-      }).catch(() => {});
+      }).catch(() => { });
     },
     showRiskAdministration() {
       const autoAccessAdminMenu = [

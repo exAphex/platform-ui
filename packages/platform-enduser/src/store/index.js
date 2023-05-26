@@ -32,6 +32,7 @@ export default new Vuex.Store({
 
     // user
     certificationCount: null,
+    requestCount: 0
   },
   mutations: {
     setEnvironment(state, env) {
@@ -73,6 +74,10 @@ export default new Vuex.Store({
     setCertificationCount(state, count) {
       state.certificationCount = count;
     },
+
+    setRequestCount(state, count) {
+      state.requestCount = count;
+    }
   },
   modules: {
     ...AutoAccess,
